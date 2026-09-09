@@ -1,0 +1,265 @@
+// Personalized AI Manager - MVP data model
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  passwordHash  String?
+  name          String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  profile        UserProfile?
+  preferences    UserPreference?
+  careerProfile  CareerProfile?
+  skills         UserSkill[]
+  goals          Goal[]
+  learningProgress LearningProgress[]
+  savedOpportunities SavedOpportunity[]
+  conversations  AIConversation[]
+  notifications  Notification[]
+  communityPosts CommunityPost[]
+  reactions      Reaction[]
+  reportsMade    Report[] @relation("ReportsMade")
+  blocksMade     Block[]  @relation("BlocksMade")
+}
+
+model UserProfile {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  interests     String[] @default([])
+  learningLevel String   @default("Beginner")
+  bio           String?
+  updatedAt     DateTime @updatedAt
+}
+
+model UserPreference {
+  id                     String  @id @default(cuid())
+  userId                 String  @unique
+  user                   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  theme                  String  @default("light")
+  reducedMotion          Boolean @default(false)
+  notifyReminders        Boolean @default(true)
+  notifyGoalUpdates      Boolean @default(true)
+  notifyLearningProgress Boolean @default(true)
+  notifyOpportunities    Boolean @default(true)
+  notifyAiRecommendations Boolean @default(false)
+  aiCanUseLearning       Boolean @default(true)
+  aiCanUseGoals          Boolean @default(true)
+  aiCanUseCareer         Boolean @default(true)
+}
+
+model LearningSubject {
+  id     String  @id @default(cuid())
+  name   String  @unique
+  category String
+  lessons Lesson[]
+}
+
+model Lesson {
+  id          String   @id @default(cuid())
+  subjectId   String
+  subject     LearningSubject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  title       String
+  order       Int      @default(0)
+  content     Json
+  progress    LearningProgress[]
+}
+
+model LearningProgress {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lessonId     String
+  lesson       Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  percentComplete Int   @default(0)
+  quizScore    Int?
+  completedAt  DateTime?
+  updatedAt    DateTime @updatedAt
+
+  @@unique([userId, lessonId])
+  @@index([userId])
+}
+
+model Skill {
+  id       String @id @default(cuid())
+  name     String @unique
+  category String
+  userSkills UserSkill[]
+}
+
+model UserSkill {
+  id          String  @id @default(cuid())
+  userId      String
+  user        User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  skillId     String
+  skill       Skill   @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  proficiency Int     @default(0)
+
+  @@unique([userId, skillId])
+  @@index([userId])
+}
+
+model CareerProfile {
+  id               String   @id @default(cuid())
+  userId           String   @unique
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  targetCareer     String
+  careerReadiness  Int      @default(0)
+  updatedAt        DateTime @updatedAt
+}
+
+model Goal {
+  id          String      @id @default(cuid())
+  userId      String
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title       String
+  objective   String?
+  strategy    String[]    @default([])
+  createdAt   DateTime    @default(now())
+  milestones  Milestone[]
+
+  @@index([userId])
+}
+
+model Milestone {
+  id      String @id @default(cuid())
+  goalId  String
+  goal    Goal   @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  title   String
+  order   Int    @default(0)
+  tasks   Task[]
+}
+
+model Task {
+  id          String    @id @default(cuid())
+  milestoneId String
+  milestone   Milestone @relation(fields: [milestoneId], references: [id], onDelete: Cascade)
+  title       String
+  done        Boolean   @default(false)
+  order       Int       @default(0)
+  completedAt DateTime?
+}
+
+model Opportunity {
+  id           String   @id @default(cuid())
+  title        String
+  org          String
+  type         String
+  deadline     DateTime?
+  location     String?
+  eligibility  String?
+  description  String?
+  sourceLabel  String
+  sourceUrl    String?
+  createdAt    DateTime @default(now())
+
+  savedBy      SavedOpportunity[]
+}
+
+model SavedOpportunity {
+  id            String      @id @default(cuid())
+  userId        String
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  opportunityId String
+  opportunity   Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  status        String      @default("saved")
+  savedAt       DateTime    @default(now())
+
+  @@unique([userId, opportunityId])
+}
+
+model AIConversation {
+  id        String      @id @default(cuid())
+  userId    String
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime    @default(now())
+  messages  AIMessage[]
+}
+
+model AIMessage {
+  id             String         @id @default(cuid())
+  conversationId String
+  conversation   AIConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  role           String
+  content        String
+  actionType     String?
+  actionLabel    String?
+  actionExecutedAt DateTime?
+  createdAt      DateTime       @default(now())
+
+  @@index([conversationId])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String
+  title     String
+  body      String?
+  readAt    DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model CommunityGroup {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  posts       CommunityPost[]
+}
+
+model CommunityPost {
+  id        String   @id @default(cuid())
+  groupId   String
+  group     CommunityGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  content   String
+  createdAt DateTime @default(now())
+  reactions Reaction[]
+  reports   Report[]
+
+  @@index([groupId])
+}
+
+model Reaction {
+  id       String        @id @default(cuid())
+  postId   String
+  post     CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId   String
+  user     User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type     String        @default("like")
+
+  @@unique([postId, userId])
+}
+
+model Report {
+  id        String        @id @default(cuid())
+  postId    String
+  post      CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  reporterId String
+  reporter  User          @relation("ReportsMade", fields: [reporterId], references: [id], onDelete: Cascade)
+  createdAt DateTime      @default(now())
+}
+
+model Block {
+  id           String @id @default(cuid())
+  blockerId    String
+  blocker      User   @relation("BlocksMade", fields: [blockerId], references: [id], onDelete: Cascade)
+  blockedUserId String
+
+  @@unique([blockerId, blockedUserId])
+}

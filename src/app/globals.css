@@ -1,0 +1,95 @@
+﻿@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root,
+.theme-light {
+  --bg: #f8fafc;
+  --surface: #ffffff;
+  --surface-alt: #f1f5f9;
+  --text: #0f172a;
+  --muted: #64748b;
+  --border: #e2e8f0;
+  --accent: #2563eb;
+  --accent-soft: #eff6ff;
+  --brass: #b45309;
+  --brass-soft: #fffbeb;
+  --teal: #0f766e;
+  --teal-soft: #f0fdfa;
+  --danger: #dc2626;
+  --danger-soft: #fef2f2;
+  --ink: #0f172a;
+  --ink-text: #ffffff;
+}
+
+.theme-dark {
+  --bg: #0a0f1e;
+  --surface: #121a2e;
+  --surface-alt: #1b2540;
+  --text: #e7ecf5;
+  --muted: #8b95ab;
+  --border: #26314d;
+  --accent: #60a5fa;
+  --accent-soft: rgba(96, 165, 250, 0.14);
+  --brass: #f2b84b;
+  --brass-soft: rgba(242, 184, 75, 0.14);
+  --teal: #2dd4bf;
+  --teal-soft: rgba(45, 212, 191, 0.14);
+  --danger: #f87171;
+  --danger-soft: rgba(248, 113, 113, 0.14);
+  --ink: #060a14;
+  --ink-text: #e7ecf5;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fadeInUp {
+  opacity: 0;
+  animation: fadeInUp 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes driftA {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(30px, -20px) scale(1.08); }
+}
+@keyframes driftB {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-25px, 25px) scale(1.05); }
+}
+.animate-driftA { animation: driftA 14s ease-in-out infinite; }
+.animate-driftB { animation: driftB 17s ease-in-out infinite; }
+
+@keyframes softPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+.animate-softPulse { animation: softPulse 2.4s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.motion-reduced *, .motion-reduced *::before, .motion-reduced *::after {
+  animation: none !important;
+  transition: none !important;
+}
+@keyframes flyAcross {
+  0% { transform: translateX(-10vw) translateY(0); opacity: 0; }
+  10% { opacity: 0.6; }
+  50% { transform: translateX(50vw) translateY(-30px); }
+  90% { opacity: 0.6; }
+  100% { transform: translateX(110vw) translateY(10px); opacity: 0; }
+}
+.animate-flyAcross { animation: flyAcross 22s linear infinite; }
+.animate-flyAcrossSlow { animation: flyAcross 32s linear infinite; animation-delay: 8s; }
