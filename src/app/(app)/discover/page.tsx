@@ -1,7 +1,6 @@
 ﻿"use client";
 
 import { useState } from "react";
-import { Card } from "@/components/ui/card";
 import { Bookmark, SkipForward, RefreshCw, Sparkles, Zap, Palette, GraduationCap, Clock3, Wind, PartyPopper } from "lucide-react";
 
 type DiscoverCard = { id: string; type: string; tag: string; body: string };
@@ -33,6 +32,7 @@ const TYPE_STYLE: Record<string, { icon: typeof Sparkles; color: string; soft: s
   nostalgia: { icon: Clock3, color: "var(--brass)", soft: "var(--brass-soft)" },
   relax: { icon: Wind, color: "var(--teal)", soft: "var(--teal-soft)" },
 };
+const DEFAULT_STYLE = { icon: Sparkles, color: "var(--accent)", soft: "var(--accent-soft)" };
 
 export default function DiscoverPage() {
   const [deck, setDeck] = useState(DECK_A);
@@ -40,8 +40,9 @@ export default function DiscoverPage() {
   const [saved, setSaved] = useState<string[]>([]);
   const [usedB, setUsedB] = useState(false);
 
-  const finished = index >= deck.length;
   const card = deck[index];
+  const style = card ? (TYPE_STYLE[card.type] ?? DEFAULT_STYLE) : DEFAULT_STYLE;
+  const Icon = style.icon;
 
   function refresh() {
     setDeck(usedB ? DECK_A : DECK_B);
@@ -65,7 +66,7 @@ export default function DiscoverPage() {
         </div>
       </div>
 
-      {!finished && (
+      {card && (
         <div className="flex gap-1.5 mb-3">
           {deck.map((_, i) => (
             <div key={i} className="flex-1 h-1 rounded-full overflow-hidden" style={{ backgroundColor: "var(--border)" }}>
@@ -76,13 +77,13 @@ export default function DiscoverPage() {
       )}
 
       <div className="flex-1 flex items-center justify-center">
-        {!finished ? (
+        {card ? (
           <div key={card.id} className="w-full animate-fadeInUp">
-            <div className="rounded-3xl p-6 border text-center" style={{ backgroundColor: TYPE_STYLE[card.type].soft, borderColor: "var(--border)" }}>
+            <div className="rounded-3xl p-6 border text-center" style={{ backgroundColor: style.soft, borderColor: "var(--border)" }}>
               <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: "var(--surface)" }}>
-                {(() => { const Icon = TYPE_STYLE[card.type].icon; return <Icon size={20} style={{ color: TYPE_STYLE[card.type].color }} />; })()}
+                <Icon size={20} style={{ color: style.color }} />
               </div>
-              <span className="text-xs font-mono uppercase tracking-widest" style={{ color: TYPE_STYLE[card.type].color }}>{card.tag}</span>
+              <span className="text-xs font-mono uppercase tracking-widest" style={{ color: style.color }}>{card.tag}</span>
               <p className="text-lg font-semibold leading-snug mt-3 text-text">{card.body}</p>
             </div>
 

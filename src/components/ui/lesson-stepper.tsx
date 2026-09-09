@@ -23,7 +23,7 @@ export function LessonStepper({
   const [index, setIndex] = useState(Math.max(0, startIndex));
   const [saving, setSaving] = useState(false);
 
-  const step = steps[index];
+  const step = steps[index] ?? steps[0] ?? { type: "concept", body: "No content available." };
   const isLast = index === steps.length - 1;
   const percent = Math.round(((index + 1) / steps.length) * 100);
 
