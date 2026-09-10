@@ -4,7 +4,7 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { AmbientBackground } from "@/components/ui/ambient-background";
-import { Sparkles, Check } from "lucide-react";
+import { Sparkles, Check, Plus } from "lucide-react";
 
 const AVAILABLE_INTERESTS = [
   "Machine Learning", "Painting", "Language learning", "Entrepreneurship",
@@ -19,6 +19,7 @@ export default function OnboardingPage() {
   const [email, setEmail] = useState("amara@example.com");
   const [password, setPassword] = useState("password123");
   const [interests, setInterests] = useState<string[]>([]);
+  const [customInterest, setCustomInterest] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -68,6 +69,15 @@ export default function OnboardingPage() {
     setInterests((prev) => (prev.includes(interest) ? prev.filter((i) => i !== interest) : [...prev, interest]));
   }
 
+  function addCustomInterest() {
+    const trimmed = customInterest.trim();
+    if (!trimmed) return;
+    if (!interests.includes(trimmed)) {
+      setInterests((prev) => [...prev, trimmed]);
+    }
+    setCustomInterest("");
+  }
+
   async function handleSaveInterests() {
     setLoading(true);
     try {
@@ -103,8 +113,9 @@ export default function OnboardingPage() {
         <div className="rounded-2xl p-6 border" style={{ backgroundColor: "var(--surface)", borderColor: "var(--border)" }}>
           {mode === "interests" ? (
             <div>
-              <p className="text-sm text-muted mb-4">Pick a few - this shapes what your AI Manager recommends.</p>
-              <div className="flex flex-wrap gap-2 mb-5">
+              <p className="text-sm text-muted mb-4">Pick a few, or add your own - this shapes what your AI Manager recommends.</p>
+
+              <div className="flex flex-wrap gap-2 mb-3">
                 {AVAILABLE_INTERESTS.map((interest) => {
                   const selected = interests.includes(interest);
                   return (
@@ -123,7 +134,37 @@ export default function OnboardingPage() {
                     </button>
                   );
                 })}
+                {interests.filter((i) => !AVAILABLE_INTERESTS.includes(i)).map((custom) => (
+                  <button
+                    key={custom}
+                    onClick={() => toggleInterest(custom)}
+                    className="flex items-center gap-1.5 text-xs font-medium rounded-full px-3 py-2 border"
+                    style={{ backgroundColor: "var(--accent)", borderColor: "var(--accent)", color: "var(--ink-text)" }}
+                  >
+                    <Check size={12} />
+                    {custom}
+                  </button>
+                ))}
               </div>
+
+              <div className="flex gap-2 mb-5">
+                <input
+                  value={customInterest}
+                  onChange={(e) => setCustomInterest(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addCustomInterest(); } }}
+                  placeholder="Or type your own..."
+                  className="flex-1 text-sm rounded-xl border px-3 py-2 outline-none"
+                  style={{ borderColor: "var(--border)", backgroundColor: "var(--surface-alt)", color: "var(--text)" }}
+                />
+                <button
+                  onClick={addCustomInterest}
+                  className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                  style={{ backgroundColor: "var(--accent)", color: "var(--ink-text)" }}
+                >
+                  <Plus size={16} />
+                </button>
+              </div>
+
               <button
                 onClick={handleSaveInterests}
                 disabled={loading}

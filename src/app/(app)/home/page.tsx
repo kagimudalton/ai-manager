@@ -26,20 +26,17 @@ export default async function HomePage() {
 
   const activeGoal = goals[0];
   const heroSeed = careerProfile?.targetCareer ?? user.name;
+  const isBrandNew = !careerProfile && !latestProgress && !activeGoal;
 
   return (
     <main className="max-w-md sm:max-w-xl md:max-w-3xl mx-auto px-4 sm:px-6 pt-2 pb-24">
       <div className="relative rounded-3xl overflow-hidden h-40 sm:h-48 mb-5 animate-fadeInUp">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={`https://picsum.photos/seed/${encodeURIComponent(heroSeed)}/900/500`}
           alt=""
           className="absolute inset-0 w-full h-full object-cover"
         />
-        <div
-          className="absolute inset-0"
-          style={{ background: "linear-gradient(180deg, rgba(15,23,42,0.15) 0%, rgba(15,23,42,0.8) 100%)" }}
-        />
+        <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(15,23,42,0.15) 0%, rgba(15,23,42,0.8) 100%)" }} />
         <div className="relative h-full flex flex-col justify-end p-5">
           <p className="text-white/70 text-xs font-mono uppercase tracking-widest">
             {new Date().toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" })}
@@ -49,6 +46,23 @@ export default async function HomePage() {
       </div>
 
       <div className="space-y-4">
+        {isBrandNew && (
+          <Card className="animate-fadeInUp">
+            <p className="text-xs font-mono uppercase tracking-widest text-muted mb-2">Get started</p>
+            <p className="font-semibold text-text mb-2">Nothing here yet - and that's normal for a new account.</p>
+            <p className="text-sm text-muted mb-4">
+              Tell your AI Manager what you're working toward, and it'll help you set up a goal, a first lesson, or a career target.
+            </p>
+            <Link
+              href="/ai"
+              className="block text-center rounded-xl py-3 font-medium text-sm"
+              style={{ backgroundColor: "var(--ink)", color: "var(--ink-text)" }}
+            >
+              Talk to your AI Manager
+            </Link>
+          </Card>
+        )}
+
         {careerProfile && (
           <Card className="animate-fadeInUp" style={{ animationDelay: "70ms" }}>
             <p className="text-xs font-mono uppercase tracking-widest text-muted mb-2">Career snapshot</p>
@@ -68,6 +82,16 @@ export default async function HomePage() {
             <ProgressBar percent={latestProgress.percentComplete} color="var(--teal)" />
             <Link href={`/learn/${latestProgress.lessonId}`} className="text-xs font-medium text-accent mt-2 inline-block">
               Resume lesson
+            </Link>
+          </Card>
+        )}
+
+        {!latestProgress && !isBrandNew && (
+          <Card className="animate-fadeInUp" style={{ animationDelay: "140ms" }}>
+            <p className="text-xs font-mono uppercase tracking-widest text-muted mb-2">Learn</p>
+            <p className="text-sm text-muted mb-3">You haven't started a lesson yet.</p>
+            <Link href="/learn" className="text-xs font-medium text-accent">
+              Browse lessons
             </Link>
           </Card>
         )}
