@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { EmptyState } from "@/components/ui/states";
 import Link from "next/link";
+import { GenerateLessonBox } from "@/components/ui/generate-lesson-box";
 
 function relevanceScore(subjectName: string, category: string, interests: string[]): number {
   const haystack = (subjectName + " " + category).toLowerCase();
@@ -48,6 +49,8 @@ export default async function LearnPage() {
           <h1 className="text-xl sm:text-2xl font-bold text-white">Keep building your skills</h1>
         </div>
       </div>
+
+      <GenerateLessonBox />
 
       {interests.length > 0 && (
         <p className="text-xs text-muted mb-3">Sorted by what you're interested in: {interests.join(", ")}</p>

@@ -110,7 +110,7 @@ export default async function HomePage() {
           </Card>
         )}
 
-        {activeGoal && <MotivationCard streakDays={7} strategy={activeGoal.strategy} />}
+        {activeGoal && <MotivationCard daysSinceJoining={Math.max(1, Math.ceil((Date.now() - new Date(user.createdAt).getTime()) / 86400000))} strategy={activeGoal.strategy} />}
 
         <Link
           href="/ai"
