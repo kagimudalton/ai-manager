@@ -4,8 +4,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { ProgressBar } from "@/components/ui/progress-bar";
+import { Check, X } from "lucide-react";
 
-type Step = { type: string; body?: string; prompt?: string };
+type Step = { type: string; body?: string; prompt?: string; options?: string[]; correctIndex?: number; explanation?: string };
 
 export function LessonStepper({
   lessonId,
@@ -17,15 +18,16 @@ export function LessonStepper({
   initialPercent: number;
 }) {
   const router = useRouter();
-  // Resume at whichever step roughly matches saved progress, so refreshing
-  // the page doesn't reset you back to the very first step.
   const startIndex = Math.min(steps.length - 1, Math.floor((initialPercent / 100) * steps.length));
   const [index, setIndex] = useState(Math.max(0, startIndex));
   const [saving, setSaving] = useState(false);
+  const [selected, setSelected] = useState<number | null>(null);
 
   const step = steps[index] ?? steps[0] ?? { type: "concept", body: "No content available." };
   const isLast = index === steps.length - 1;
   const percent = Math.round(((index + 1) / steps.length) * 100);
+  const hasQuestion = Boolean(step.options && step.options.length > 0);
+  const canAdvance = !hasQuestion || selected !== null;
 
   async function saveProgress(newPercent: number) {
     setSaving(true);
@@ -42,6 +44,7 @@ export function LessonStepper({
   }
 
   async function handleContinue() {
+    setSelected(null);
     if (isLast) {
       await saveProgress(100);
       return;
@@ -52,6 +55,7 @@ export function LessonStepper({
   }
 
   function handleBack() {
+    setSelected(null);
     setIndex((i) => Math.max(0, i - 1));
   }
 
@@ -66,7 +70,39 @@ export function LessonStepper({
 
       <Card key={index}>
         <p className="text-xs font-mono uppercase tracking-widest text-muted mb-2">{step.type}</p>
-        <p className="text-sm text-text">{step.body ?? step.prompt}</p>
+        <p className="text-sm text-text mb-3">{step.body ?? step.prompt}</p>
+
+        {hasQuestion && (
+          <div className="space-y-2">
+            {step.options!.map((opt, i) => {
+              const isSelected = selected === i;
+              const isCorrect = i === step.correctIndex;
+              const showState = selected !== null;
+              let style: React.CSSProperties = { borderColor: "var(--border)", backgroundColor: "var(--surface-alt)" };
+              if (showState && isCorrect) style = { borderColor: "var(--teal)", backgroundColor: "var(--teal-soft)" };
+              else if (showState && isSelected && !isCorrect) style = { borderColor: "var(--danger)", backgroundColor: "var(--danger-soft)" };
+
+              return (
+                <button
+                  key={i}
+                  onClick={() => selected === null && setSelected(i)}
+                  disabled={selected !== null}
+                  className="w-full text-left px-4 py-3 rounded-xl border text-sm flex items-center justify-between text-text"
+                  style={style}
+                >
+                  <span>{opt}</span>
+                  {showState && isCorrect && <Check size={16} style={{ color: "var(--teal)" }} />}
+                  {showState && isSelected && !isCorrect && <X size={16} style={{ color: "var(--danger)" }} />}
+                </button>
+              );
+            })}
+            {selected !== null && step.explanation && (
+              <div className="rounded-xl p-3 mt-2" style={{ backgroundColor: "var(--surface-alt)" }}>
+                <p className="text-sm text-muted">{step.explanation}</p>
+              </div>
+            )}
+          </div>
+        )}
       </Card>
 
       <div className="flex items-center gap-3">
@@ -80,7 +116,7 @@ export function LessonStepper({
         </button>
         <button
           onClick={handleContinue}
-          disabled={saving || done}
+          disabled={saving || done || !canAdvance}
           className="flex-1 rounded-xl py-3 text-sm font-medium disabled:opacity-50"
           style={{ backgroundColor: "var(--accent)", color: "var(--ink-text)" }}
         >
