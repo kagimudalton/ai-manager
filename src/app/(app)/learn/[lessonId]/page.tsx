@@ -20,7 +20,7 @@ export default async function LessonPage({ params }: { params: { lessonId: strin
   });
   const percent = progress?.percentComplete ?? 0;
 
-  const content = lesson.content as { steps?: { type: string; body?: string; prompt?: string }[] };
+  const content = lesson.content as { steps?: { type: string; body?: string; prompt?: string; options?: string[]; correctIndex?: number; explanation?: string }[] };
   const steps = content.steps ?? [{ type: "concept", body: "No content yet for this lesson." }];
 
   return (
@@ -28,7 +28,7 @@ export default async function LessonPage({ params }: { params: { lessonId: strin
       <p className="text-xs font-mono uppercase tracking-widest text-muted">{lesson.subject.name}</p>
       <h1 className="text-2xl font-bold text-text">{lesson.title}</h1>
 
-      <LessonStepper lessonId={lesson.id} steps={steps} initialPercent={percent} />
+      <LessonStepper lessonId={lesson.id} subjectName={lesson.subject.name} steps={steps} initialPercent={percent} />
     </main>
   );
 }

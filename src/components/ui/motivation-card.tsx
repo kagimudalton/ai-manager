@@ -2,18 +2,28 @@
 
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Flame } from "lucide-react";
 
-export function MotivationCard({ daysSinceJoining, strategy }: { daysSinceJoining: number; strategy: string[] }) {
+export function MotivationCard({ streak, advice, strategy }: { streak: number; advice: string | null; strategy: string[] }) {
   const [open, setOpen] = useState(false);
-  const line = daysSinceJoining <= 1
-    ? "Welcome - today's a good day to take your first real step."
-    : `You've been here ${daysSinceJoining} days. Consistency beats intensity - keep showing up.`;
 
   return (
     <Card className="animate-fadeInUp">
-      <p className="text-xs font-mono uppercase tracking-widest text-muted mb-2">Motivation</p>
-      <p className="text-base font-semibold text-text mb-3">{line}</p>
+      <div className="flex items-center justify-between mb-3">
+        <p className="text-xs font-mono uppercase tracking-widest text-muted">Motivation</p>
+        <div className="flex items-center gap-1 rounded-full px-2.5 py-1 border" style={{ borderColor: "var(--border)" }}>
+          <Flame size={13} style={{ color: streak > 0 ? "var(--brass)" : "var(--muted)" }} />
+          <span className="text-xs font-mono font-medium text-text">{streak} day{streak === 1 ? "" : "s"}</span>
+        </div>
+      </div>
+
+      <p className="text-base font-semibold text-text mb-1">
+        {streak === 0 ? "Today's a good day to start." : `${streak} day streak - keep it going.`}
+      </p>
+
+      {advice && (
+        <p className="text-sm text-muted mb-3 italic">"{advice}"</p>
+      )}
 
       {strategy.length > 0 && (
         <>

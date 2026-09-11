@@ -3,18 +3,29 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getUserGoals } from "@/lib/services/goal-service";
+import { computeStreak } from "@/lib/services/streak-service";
 import { Card } from "@/components/ui/card";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { MotivationCard } from "@/components/ui/motivation-card";
 import { BootstrapButton } from "@/components/ui/bootstrap-button";
 import Link from "next/link";
 
+async function getRealAdvice(): Promise<string | null> {
+  try {
+    const res = await fetch("https://api.adviceslip.com/advice", { cache: "no-store" });
+    const data = await res.json();
+    return data?.slip?.advice ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export default async function HomePage() {
   const session = await getServerSession(authOptions);
   const userId = (session?.user as { id?: string } | undefined)?.id;
   if (!userId) redirect("/onboarding");
 
-  const [user, careerProfile, latestProgress, goals] = await Promise.all([
+  const [user, careerProfile, latestProgress, goals, streak, advice] = await Promise.all([
     db.user.findUniqueOrThrow({ where: { id: userId } }),
     db.careerProfile.findUnique({ where: { userId } }),
     db.learningProgress.findFirst({
@@ -23,6 +34,8 @@ export default async function HomePage() {
       include: { lesson: { include: { subject: true } } },
     }),
     getUserGoals(userId),
+    computeStreak(userId),
+    getRealAdvice(),
   ]);
 
   const activeGoal = goals[0];
@@ -55,15 +68,13 @@ export default async function HomePage() {
               We'll generate a real first lesson and a starter goal based on your interests - takes about 10 seconds.
             </p>
             <BootstrapButton />
-            <Link
-              href="/ai"
-              className="block text-center text-sm font-medium mt-3"
-              style={{ color: "var(--accent)" }}
-            >
+            <Link href="/ai" className="block text-center text-sm font-medium mt-3" style={{ color: "var(--accent)" }}>
               Or just talk to your AI Manager
             </Link>
           </Card>
         )}
+
+        <MotivationCard streak={streak} advice={advice} strategy={activeGoal?.strategy ?? []} />
 
         {careerProfile && (
           <Card className="animate-fadeInUp" style={{ animationDelay: "70ms" }}>
@@ -112,18 +123,7 @@ export default async function HomePage() {
           </Card>
         )}
 
-        {activeGoal && (
-          <MotivationCard
-            daysSinceJoining={Math.max(1, Math.ceil((Date.now() - new Date(user.createdAt).getTime()) / 86400000))}
-            strategy={activeGoal.strategy}
-          />
-        )}
-
-        <Link
-          href="/ai"
-          className="block rounded-2xl p-4 text-center font-medium"
-          style={{ backgroundColor: "var(--ink)", color: "var(--ink-text)" }}
-        >
+        <Link href="/ai" className="block rounded-2xl p-4 text-center font-medium" style={{ backgroundColor: "var(--ink)", color: "var(--ink-text)" }}>
           Ask your AI Manager
         </Link>
       </div>

@@ -4,16 +4,18 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { ProgressBar } from "@/components/ui/progress-bar";
-import { Check, X } from "lucide-react";
+import { Check, X, RotateCcw, ArrowRight } from "lucide-react";
 
 type Step = { type: string; body?: string; prompt?: string; options?: string[]; correctIndex?: number; explanation?: string };
 
 export function LessonStepper({
   lessonId,
+  subjectName,
   steps,
   initialPercent,
 }: {
   lessonId: string;
+  subjectName: string;
   steps: Step[];
   initialPercent: number;
 }) {
@@ -22,6 +24,8 @@ export function LessonStepper({
   const [index, setIndex] = useState(Math.max(0, startIndex));
   const [saving, setSaving] = useState(false);
   const [selected, setSelected] = useState<number | null>(null);
+  const [finished, setFinished] = useState(initialPercent >= 100);
+  const [generatingNext, setGeneratingNext] = useState(false);
 
   const step = steps[index] ?? steps[0] ?? { type: "concept", body: "No content available." };
   const isLast = index === steps.length - 1;
@@ -47,6 +51,7 @@ export function LessonStepper({
     setSelected(null);
     if (isLast) {
       await saveProgress(100);
+      setFinished(true);
       return;
     }
     const nextIndex = index + 1;
@@ -59,14 +64,56 @@ export function LessonStepper({
     setIndex((i) => Math.max(0, i - 1));
   }
 
-  const done = initialPercent >= 100 && isLast;
+  function handleReview() {
+    setFinished(false);
+    setIndex(0);
+    setSelected(null);
+  }
+
+  async function handleKeepLearning() {
+    setGeneratingNext(true);
+    try {
+      const res = await fetch("/api/learn/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ topic: subjectName }),
+      });
+      const data = await res.json();
+      if (res.ok && data.lessonId) {
+        router.push(`/learn/${data.lessonId}`);
+      }
+    } finally {
+      setGeneratingNext(false);
+    }
+  }
+
+  if (finished) {
+    return (
+      <div className="text-center py-8 animate-fadeInUp">
+        <p className="text-lg font-bold text-text mb-1">Lesson complete</p>
+        <p className="text-sm text-muted mb-6">Nice work on {subjectName}.</p>
+        <div className="flex flex-col gap-2 max-w-xs mx-auto">
+          <button onClick={handleReview} className="flex items-center justify-center gap-2 rounded-xl py-3 text-sm font-medium border" style={{ borderColor: "var(--border)", color: "var(--text)" }}>
+            <RotateCcw size={15} /> Review this lesson
+          </button>
+          <button
+            onClick={handleKeepLearning}
+            disabled={generatingNext}
+            className="flex items-center justify-center gap-2 rounded-xl py-3 text-sm font-medium disabled:opacity-60"
+            style={{ backgroundColor: "var(--accent)", color: "var(--ink-text)" }}
+          >
+            {generatingNext ? "Generating your next lesson..." : `Keep learning ${subjectName}`}
+            {!generatingNext && <ArrowRight size={15} />}
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
-      <ProgressBar percent={done ? 100 : percent} color="var(--teal)" />
-      <p className="text-xs text-muted">
-        Step {index + 1} of {steps.length}
-      </p>
+      <ProgressBar percent={percent} color="var(--teal)" />
+      <p className="text-xs text-muted">Step {index + 1} of {steps.length}</p>
 
       <Card key={index}>
         <p className="text-xs font-mono uppercase tracking-widest text-muted mb-2">{step.type}</p>
@@ -106,21 +153,16 @@ export function LessonStepper({
       </Card>
 
       <div className="flex items-center gap-3">
-        <button
-          onClick={handleBack}
-          disabled={index === 0}
-          className="px-4 py-3 rounded-xl border text-sm font-medium disabled:opacity-30"
-          style={{ borderColor: "var(--border)", color: "var(--text)" }}
-        >
+        <button onClick={handleBack} disabled={index === 0} className="px-4 py-3 rounded-xl border text-sm font-medium disabled:opacity-30" style={{ borderColor: "var(--border)", color: "var(--text)" }}>
           Back
         </button>
         <button
           onClick={handleContinue}
-          disabled={saving || done || !canAdvance}
+          disabled={saving || !canAdvance}
           className="flex-1 rounded-xl py-3 text-sm font-medium disabled:opacity-50"
           style={{ backgroundColor: "var(--accent)", color: "var(--ink-text)" }}
         >
-          {done ? "Lesson complete" : saving ? "Saving..." : isLast ? "Finish lesson" : "Continue"}
+          {saving ? "Saving..." : isLast ? "Finish lesson" : "Continue"}
         </button>
       </div>
     </div>

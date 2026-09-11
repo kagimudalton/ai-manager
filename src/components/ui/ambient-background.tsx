@@ -17,7 +17,7 @@
         style={{ backgroundColor: "var(--brass)", opacity: 0.22, filter: "blur(70px)", bottom: "5%", right: "-10%" }}
       />
       <div className="absolute text-2xl animate-flyAcross" style={{ top: "15%" }}>🦋</div>
-      <div className="absolute text-xl animate-flyAcrossSlow" style={{ top: "55%" }}>🐝</div>
+      <div className="absolute text-xl animate-flyAcross" style={{ top: "70%", animationDelay: "5s" }}>🐝</div>
     </div>
   );
 }
