@@ -171,7 +171,7 @@ export default function OnboardingPage() {
                 className="w-full rounded-xl py-3 text-sm font-medium disabled:opacity-50"
                 style={{ backgroundColor: "var(--ink)", color: "var(--ink-text)" }}
               >
-                {loading ? "Saving..." : "Continue"}
+                {loading ? "Setting up your dashboard..." : "Continue"}
               </button>
             </div>
           ) : (
