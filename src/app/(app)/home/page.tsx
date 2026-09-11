@@ -6,6 +6,7 @@ import { getUserGoals } from "@/lib/services/goal-service";
 import { Card } from "@/components/ui/card";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { MotivationCard } from "@/components/ui/motivation-card";
+import { BootstrapButton } from "@/components/ui/bootstrap-button";
 import Link from "next/link";
 
 export default async function HomePage() {
@@ -49,16 +50,17 @@ export default async function HomePage() {
         {isBrandNew && (
           <Card className="animate-fadeInUp">
             <p className="text-xs font-mono uppercase tracking-widest text-muted mb-2">Get started</p>
-            <p className="font-semibold text-text mb-2">Nothing here yet - and that's normal for a new account.</p>
+            <p className="font-semibold text-text mb-2">Let's set up your dashboard.</p>
             <p className="text-sm text-muted mb-4">
-              Tell your AI Manager what you're working toward, and it'll help you set up a goal, a first lesson, or a career target.
+              We'll generate a real first lesson and a starter goal based on your interests - takes about 10 seconds.
             </p>
+            <BootstrapButton />
             <Link
               href="/ai"
-              className="block text-center rounded-xl py-3 font-medium text-sm"
-              style={{ backgroundColor: "var(--ink)", color: "var(--ink-text)" }}
+              className="block text-center text-sm font-medium mt-3"
+              style={{ color: "var(--accent)" }}
             >
-              Talk to your AI Manager
+              Or just talk to your AI Manager
             </Link>
           </Card>
         )}
@@ -110,7 +112,12 @@ export default async function HomePage() {
           </Card>
         )}
 
-        {activeGoal && <MotivationCard daysSinceJoining={Math.max(1, Math.ceil((Date.now() - new Date(user.createdAt).getTime()) / 86400000))} strategy={activeGoal.strategy} />}
+        {activeGoal && (
+          <MotivationCard
+            daysSinceJoining={Math.max(1, Math.ceil((Date.now() - new Date(user.createdAt).getTime()) / 86400000))}
+            strategy={activeGoal.strategy}
+          />
+        )}
 
         <Link
           href="/ai"
