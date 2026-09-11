@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -23,7 +23,7 @@ export default function AIManagerPage() {
   const router = useRouter();
   const [conversationId, setConversationId] = useState<string | undefined>();
   const [messages, setMessages] = useState<Message[]>([
-    { role: "assistant", content: "Hi — what should we focus on today?" },
+    { role: "assistant", content: "Hi â€” what should we focus on today?" },
   ]);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
@@ -58,7 +58,7 @@ export default function AIManagerPage() {
     } catch {
       setMessages((m) => [
         ...m,
-        { role: "assistant", content: "I'm having trouble responding right now — please try again in a moment." },
+        { role: "assistant", content: "I'm having trouble responding right now â€” please try again in a moment." },
       ]);
     } finally {
       setSending(false);
@@ -69,7 +69,7 @@ export default function AIManagerPage() {
     if (!msg.id || !msg.actionType) return;
 
     // This POST is the Execution step. It only ever fires from this
-    // explicit button handler — never automatically after the chat
+    // explicit button handler â€” never automatically after the chat
     // response arrives above.
     try {
       const res = await fetch("/api/ai/actions", {
@@ -84,12 +84,12 @@ export default function AIManagerPage() {
       const route = ROUTE_BY_ACTION[msg.actionType];
       if (route) router.push(route);
     } catch {
-      setMessages((m) => [...m, { role: "assistant", content: "Couldn't complete that action — please try again." }]);
+      setMessages((m) => [...m, { role: "assistant", content: "Couldn't complete that action â€” please try again." }]);
     }
   }
 
   return (
-    <main className="max-w-md sm:max-w-xl mx-auto flex flex-col min-h-screen px-4 sm:px-6 pt-6 pb-4">
+    <main className="max-w-md sm:max-w-xl mx-auto flex flex-col px-4 sm:px-6 pt-2" style={{ height: "calc(100vh - 140px)" }}>
       <h1 className="text-lg font-semibold text-text mb-4">AI Manager</h1>
 
       <div className="flex-1 space-y-3 overflow-y-auto">
@@ -136,7 +136,7 @@ export default function AIManagerPage() {
           Send
         </button>
       </div>
-      <p className="text-xs text-muted text-center mt-2">Recommendations only — nothing executes without your confirmation.</p>
+      <p className="text-xs text-muted text-center mt-2">Recommendations only â€” nothing executes without your confirmation.</p>
     </main>
   );
 }

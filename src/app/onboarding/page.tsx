@@ -86,6 +86,9 @@ export default function OnboardingPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ interests: interests.length > 0 ? interests : ["General learning"] }),
       });
+      await fetch("/api/onboarding/bootstrap", { method: "POST" });
+    } catch (err) {
+      console.error("Bootstrap failed:", err);
     } finally {
       router.push("/home");
     }
