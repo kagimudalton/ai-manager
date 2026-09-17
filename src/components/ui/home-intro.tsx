@@ -12,7 +12,7 @@ export function HomeIntro() {
 
     setShow(true);
     sessionStorage.setItem("aim_intro_played", "true");
-    const timer = setTimeout(() => setShow(false), 2700);
+    const timer = setTimeout(() => setShow(false), 5100);
     return () => clearTimeout(timer);
   }, []);
 
