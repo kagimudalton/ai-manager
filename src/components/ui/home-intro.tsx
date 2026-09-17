@@ -2,6 +2,7 @@
   return (
     <>
       <div id="aim-intro" className="fixed inset-0 z-[100] pointer-events-none intro-fadeout" aria-hidden="true">
+        <div className="absolute inset-0 intro-cover" />
         <div
           className="absolute top-0 left-1/2 -translate-x-1/2 w-[3px] intro-bolt"
           style={{ background: "linear-gradient(180deg, transparent, var(--accent) 30%, #ffffff 100%)", boxShadow: "0 0 20px 4px var(--accent)" }}
@@ -11,7 +12,6 @@
           className="absolute rounded-full intro-ring"
           style={{ left: "50%", top: "82%", transform: "translate(-50%, -50%)", borderStyle: "solid", borderColor: "var(--accent)", boxShadow: "0 0 40px 10px var(--accent)" }}
         />
-        <div className="absolute inset-0 intro-cover" style={{ backgroundColor: "var(--ink)" }} />
       </div>
       <script
         dangerouslySetInnerHTML={{
@@ -26,7 +26,7 @@
                 return;
               }
               sessionStorage.setItem("aim_intro_played", "true");
-              setTimeout(function() { el.style.display = "none"; }, 5100);
+              setTimeout(function() { el.style.display = "none"; }, 5200);
             })();
           `,
         }}
