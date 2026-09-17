@@ -9,6 +9,7 @@ import { ProgressBar } from "@/components/ui/progress-bar";
 import { MotivationCard } from "@/components/ui/motivation-card";
 import { BootstrapButton } from "@/components/ui/bootstrap-button";
 import Link from "next/link";
+import { HomeIntro } from "@/components/ui/home-intro";
 
 async function getRealAdvice(): Promise<string | null> {
   try {
@@ -44,6 +45,7 @@ export default async function HomePage() {
 
   return (
     <main className="max-w-md sm:max-w-xl md:max-w-3xl mx-auto px-4 sm:px-6 pt-2 pb-24">
+      <HomeIntro />
       <div className="relative rounded-3xl overflow-hidden h-40 sm:h-48 mb-5 animate-fadeInUp">
         <img
           src={`https://picsum.photos/seed/${encodeURIComponent(heroSeed)}/900/500`}

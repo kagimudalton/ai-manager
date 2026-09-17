@@ -1,0 +1,35 @@
+﻿"use client";
+
+import { useEffect, useState } from "react";
+
+export function HomeIntro() {
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    const alreadyPlayed = sessionStorage.getItem("aim_intro_played");
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (alreadyPlayed || prefersReduced) return;
+
+    setShow(true);
+    sessionStorage.setItem("aim_intro_played", "true");
+    const timer = setTimeout(() => setShow(false), 2700);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (!show) return null;
+
+  return (
+    <div className="fixed inset-0 z-[100] pointer-events-none intro-fadeout" aria-hidden="true">
+      <div
+        className="absolute top-0 left-1/2 -translate-x-1/2 w-[3px] intro-bolt"
+        style={{ background: "linear-gradient(180deg, transparent, var(--accent) 30%, #ffffff 100%)", boxShadow: "0 0 20px 4px var(--accent)" }}
+      />
+      <div className="absolute inset-0 bg-white intro-flash" />
+      <div
+        className="absolute rounded-full intro-ring"
+        style={{ left: "50%", top: "82%", transform: "translate(-50%, -50%)", borderStyle: "solid", borderColor: "var(--accent)", boxShadow: "0 0 40px 10px var(--accent)" }}
+      />
+      <div className="absolute inset-0 intro-cover" style={{ backgroundColor: "var(--ink)" }} />
+    </div>
+  );
+}
